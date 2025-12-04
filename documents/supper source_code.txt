@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Food Delivery App  — Customer / Restaurant / Driver</title>
+  <style>
+    :root{
+      --bg:#1b244b; --card:#1b1749; --muted:#204467; --accent:#FF8D29; --accent-2:#6b9bff;
+      --glass: rgba(255, 255, 255, 0.13);
+      --radius:14px; --gap:16px; --maxw:1100px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
+      background: #F9F6F0; color:#000000; -webkit-font-smoothing:antialiased;
+      padding:28px; display:flex; justify-content:center; align-items:flex-start; gap:24px;
+    }
+    .app{width:100%; max-width:var(--maxw)}
+    header{display:flex;justify-content:space-between;align-items:center; gap:12px;margin-bottom:18px}
+    h1{font-size:20px;margin:0}
+    .roles{display:flex;gap:8px}
+    button.role{background:var(--glass); border:1px solid rgba(255,255,255,0.04); color:var(--muted); padding:8px 12px; border-radius:10px; cursor:pointer}
+    button.role.active{background:#c9cbcba4; color:#082032}
+
+    .layout{display:grid; grid-template-columns: 1fr 360px; gap:var(--gap)}
+    .panel{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:12px; padding:18px; box-shadow: 0 6px 20px rgba(2,6,23,0.6);}
+    .search{display:flex; gap:8px; align-items:center}
+    .search input{flex:1;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.03); background:transparent;color:inherit}
+    .filters{display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;}
+    .chip{padding:8px 10px;border-radius:999px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03); cursor:pointer}
+    .list{display:grid; gap:12px; margin-top:16px; background:#efeeee87; }
+    .card:hover {
+  background: #ffffff;
+  transition: background 0.3s ease;
+}
+    .restaurant{display:flex; gap:12px; padding:12px; border-radius:12px; background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent); cursor:pointer; align-items:center}
+   
+
+
+    .r-thumb{width:80px;height:64px;border-radius:8px; background: linear-gradient(90deg,var(--accent),var(--accent-2)); display:flex;align-items:center;justify-content:center;font-weight:700}
+    .r-body{flex:1}
+    .r-meta{color:var(--muted); font-size:13px}
+
+    .menu{display:grid; gap:10px; margin-top:12px}
+    .menu .cat{font-weight:600; margin-top:8px}
+    .dish{display:flex; gap:12px; align-items:center; padding:10px; border-radius:10px; background:rgba(255,255,255,0.01)}
+    .dish .img{width:70px;height:56px;border-radius:8px;background:linear-gradient(90deg,#ffd3a5,#ff6b6b); display:flex;align-items:center;justify-content:center}
+    .dish .meta{flex:1}
+    .price{font-weight:700}
+    .addbtn{background:var(--accent); border:none; padding:8px 10px;border-radius:8px;color:#082032;cursor:pointer}
+
+    .side{display:flex;flex-direction:column;gap:12px}
+    .card{padding:12px;border-radius:12px;background:linear-gradient(180deg, rgba(255, 255, 255, 0.837), rgba(255, 255, 255, 0.753));}
+    .cart-items{display:flex;flex-direction:column;gap:8px;max-height:300px;overflow:auto}
+    .cart-row{display:flex;justify-content:space-between;align-items:center}
+    .muted{color:var(--muted);font-size:13px}
+    .btn{padding:10px 12px;border-radius:10px;border:none;cursor:pointer}
+    .btn.primary{background:var(--accent);}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted)}
+
+    .dash-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+    .order{padding:10px;border-radius:10px;background:rgba(255,255,255,0.01);display:flex;flex-direction:column;gap:6px}
+    .order h4{margin:0}
+    .status{padding:6px;border-radius:8px;font-weight:600; font-size:13px}
+    .status.new{background:rgba(107,155,255,0.14); color:var(--accent-2)}
+    .status.prep{background:rgba(255,107,107,0.12); color:var(--accent)}
+    .status.out{background:rgba(102,255,172,0.08); color:#5fe3a0}
+
+    .delivery{display:flex;gap:8px;align-items:center;justify-content:space-between}
+
+    @media (max-width:980px){.layout{grid-template-columns:1fr} .side{order:2}}
+
+    .small{font-size:13px}
+    .center{display:flex;align-items:center;justify-content:center}
+    .hidden{display:none}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div>
+        <h1 style="font-size: 35px;">Supper<span style="color:#FF8D29;">.</span> </h1>
+      </div>
+      <div class="roles">
+        <button class="role active" data-role="customer">Customer</button>
+        <button class="role" data-role="restaurant">Restaurant</button>
+        <button class="role" data-role="driver">Driver</button>
+      </div>
+    </header>
+
+    <div class="layout">
+      <main class="panel" id="mainPanel" style="background:#ffffff;">
+      </main>
+
+      <aside class="side">
+        <div class="card" id="sideCard">
+        </div>
+    
+      </aside>
+    </div>
+
+   
+  </div>
+
+  <script>
+    /* ------------- CONFIG / HELPERS ------------- */
+    const API_ROOT = ''; // relative to same origin (e.g., http://localhost:3000)
+
+    async function apiGet(path){
+      const res = await fetch(API_ROOT + path);
+      if(!res.ok) throw new Error('API GET ' + path + ' failed: ' + (await res.text()));
+      return res.json();
+    }
+    async function apiPost(path, body){
+      const res = await fetch(API_ROOT + path, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+      const data = await res.json().catch(()=>({}));
+      if(!res.ok) throw new Error(data.error || 'API POST ' + path + ' failed');
+      return data;
+    }
+    async function apiPut(path, body){
+      const res = await fetch(API_ROOT + path, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+      const data = await res.json().catch(()=>({}));
+      if(!res.ok) throw new Error(data.error || 'API PUT ' + path + ' failed');
+      return data;
+    }
+
+    /* ------------- App state ------------- */
+    const STORAGE = {
+      ordersKey: 'demo_orders_v1',
+      menuKey: 'demo_menu_v1',
+    };
+
+    function readOrdersLocal(){ try{return JSON.parse(localStorage.getItem(STORAGE.ordersKey))||[] }catch(e){return[]} }
+    function writeOrdersLocal(v){ localStorage.setItem(STORAGE.ordersKey, JSON.stringify(v)) }
+
+    // App object: will be populated from API
+    const App = {
+      role:'customer',
+      restaurants: [],   // from /api/restaurants
+      drivers: [],       // from /api/drivers
+      cart: {},
+      selectedRestaurant: null,
+      // note: orders are fetched from API in dashboards (we won't rely on localStorage for main flow)
+    };
+
+    const main = document.getElementById('mainPanel');
+    const side = document.getElementById('sideCard');
+
+    function money(x){ return '\u20B9'+(Number(x)||0).toFixed(0) }
+
+    /* ------------- Initialization: fetch restaurants & drivers ------------- */
+    async function initialLoad(){
+      try{
+        const rests = await apiGet('/api/restaurants');
+        // restaurants returned as array of DB rows (id, name, cuisine, rating, avg_time, description, address, image)
+        App.restaurants = rests.map(r => ({
+          id: r.id,
+          name: r.name,
+          cuisine: r.cuisine || '',
+          rating: r.rating || 0,
+          time: r.avg_time || r.time || 0,
+          desc: r.description || r.desc || '',
+          address: r.address || '',
+          image: r.image || ''
+        }));
+      }catch(err){
+        console.error('Failed to load restaurants', err);
+        // fallback: keep empty list so UI still works
+        App.restaurants = [];
+      }
+
+      // drivers (optional)
+      try{
+        App.drivers = await apiGet('/api/drivers');
+      }catch(e){
+        console.warn('No drivers endpoint or failed to load drivers', e);
+        App.drivers = [];
+      }
+
+      render();
+    }
+    initialLoad();
+
+    /* ------------- Render glue ------------- */
+    function render(){
+      document.querySelectorAll('.role').forEach(b=>b.classList.toggle('active', b.dataset.role===App.role));
+      if(App.role==='customer') renderCustomer();
+      if(App.role==='restaurant') renderRestaurantDashboard();
+      if(App.role==='driver') renderDriverApp();
+    }
+
+    /* ------------- CUSTOMER UI ------------- */
+    function renderCustomer(){
+      main.innerHTML = `
+        <div class="search">
+          <input id="searchInput" placeholder="Search restaurants or dishes..." />
+          <button class="chip" id="btnFilter">Filters</button>
+        </div>
+        <div class="filters" id="filtersBar">
+          <div class="chip" data-filter="Italian"  style="background: rgba(181, 228, 235, 0.5);">Italian</div>
+          <div class="chip" data-filter="Chinese" style="background: rgba(181, 228, 235, 0.5);">Chinese</div>
+          <div class="chip" data-filter="Healthy" style="background: rgba(181, 228, 235, 0.5);">Healthy</div>
+          <div class="chip" data-filter="veg" style="background: rgba(181, 228, 235, 0.5);">Vegetarian</div>
+        </div>
+        <div class="list" id="restList"></div>
+        <div id="restaurantPage" class="hidden"></div>
+      `;
+
+      const list = document.getElementById('restList');
+
+      function showRestaurants(filterText){
+        list.innerHTML = '';
+        const q = (document.getElementById('searchInput').value||'').toLowerCase();
+        App.restaurants.filter(r=>{
+          if(filterText){
+            // to check menu names we need to fetch menus — skip expensive check here and only show by cuisine/name/desc
+            // (filterText used by UI chips — treat as cuisine shortcut)
+            if(!r.cuisine || !r.cuisine.toLowerCase().includes(filterText.toLowerCase())) return false;
+          }
+          if(q && !(r.name.toLowerCase().includes(q) || r.cuisine.toLowerCase().includes(q) || (r.desc||'').toLowerCase().includes(q))) return false;
+          return true;
+        }).forEach(r=>{
+          const el = document.createElement('div'); el.className='restaurant'; el.dataset.id=r.id;
+          el.innerHTML = `<div class="r-thumb"><img src="${r.image}" alt="${r.name}" 
+           style="width:100%;height:100%;object-fit:cover;border-radius:8px;" /></div>
+            <div class="r-body">
+              <div style="display:flex;justify-content:space-between;align-items:center"><div><strong>${r.name}</strong> <span class="muted small">• ${r.cuisine}</span></div><div class="muted small">${r.time} min</div></div>
+              <div class="r-meta">${r.desc} · ${r.rating} ★</div>
+            </div>`;
+          el.addEventListener('click', ()=> openRestaurant(r.id));
+          list.appendChild(el);
+        })
+      }
+
+      document.getElementById('searchInput').addEventListener('input', ()=> showRestaurants());
+      document.querySelectorAll('#filtersBar .chip').forEach(c=> c.addEventListener('click', ()=>{ const f = c.dataset.filter; showRestaurants(f); }));
+      showRestaurants();
+
+      renderCartSide();
+    }
+
+    // fetch restaurant details & menu from backend, then show
+    async function openRestaurant(rid){
+      try{
+        const r = await apiGet('/api/restaurants/' + rid);
+        // r will include categories object mapping category -> [items]
+        // Normalize categories where item properties may differ
+        // Save selectedRestaurant in App.selectedRestaurant in normalized shape
+        const norm = {
+          id: r.id,
+          name: r.name,
+          cuisine: r.cuisine,
+          rating: r.rating,
+          time: r.avg_time || r.time,
+          desc: r.description || '',
+          address: r.address || '',
+          image: r.image || '',
+          categories: {}
+        };
+        // categories may be object keyed by category
+        const cats = r.categories || {};
+        for(const [cat, items] of Object.entries(cats)){
+          norm.categories[cat] = items.map(it => ({
+            id: it.id,
+            name: it.name,
+            desc: it.description || it.desc || '',
+            price: Number(it.price || 0),
+            image: it.image || ''
+          }));
+        }
+        App.selectedRestaurant = norm;
+
+        const restPage = document.getElementById('restaurantPage');
+        restPage.classList.remove('hidden');
+        restPage.innerHTML = `
+  <div style="margin-top:12px">
+    <button class="btn ghost" id="backToList">← Back</button>
+  </div>
+  <div style="display:flex;gap:12px;align-items:center;margin-top:12px">
+    <div class="r-thumb">
+      <img src="${norm.image}" alt="${norm.name}" 
+           style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />
+    </div>
+    <div>
+      <h2 style="margin:0">${norm.name}</h2>
+      <div class="muted small">${norm.cuisine} · ${norm.time || ''} min · ${norm.rating} ★</div>
+      <div class="muted small">${norm.address}</div>
+    </div>
+  </div>
+  <div class="menu" id="menuArea"></div>
+`;
+
+        document.getElementById('backToList').addEventListener('click', ()=>{ restPage.classList.add('hidden'); App.selectedRestaurant=null; });
+
+        const menuArea = document.getElementById('menuArea'); menuArea.innerHTML='';
+        for(const [cat, items] of Object.entries(norm.categories)){
+          const catDiv = document.createElement('div'); catDiv.className='cat'; catDiv.textContent = cat; menuArea.appendChild(catDiv);
+          items.forEach(it=>{
+            const d = document.createElement('div');
+            d.className='dish';
+            d.innerHTML = `
+  <div class="img">
+    <img src="${it.image}" alt="${it.name}" 
+         style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />
+  </div>
+  <div class="meta">
+    <div><strong>${it.name}</strong></div>
+    <div class="muted small">${it.desc}</div>
+  </div>
+  <div style="text-align:right">
+    <div class="price">${money(it.price)}</div>
+    <button class="addbtn" data-id="${it.id}">Add</button>
+  </div>`;
+            d.querySelector('.addbtn').addEventListener('click', ()=> addToCart(norm.id, it));
+            menuArea.appendChild(d);
+          });
+        }
+
+        renderCartSide();
+      }catch(err){
+        console.error('openRestaurant error', err);
+        alert('Failed to load menu: ' + err.message);
+      }
+    }
+
+    function addToCart(rid, item){
+      if(Object.keys(App.cart).length && App.cart.restaurantId && App.cart.restaurantId!==rid){
+        if(!confirm('Clear cart and add from this restaurant?')) return;
+        App.cart = {};
+      }
+      App.cart.restaurantId = rid;
+      App.cart.items = App.cart.items||{};
+      // ensure we store the DB menu_item id (numeric)
+      App.cart.items[item.id] = (App.cart.items[item.id]||{...item, qty:0});
+      App.cart.items[item.id].qty++;
+      renderCartSide();
+      console.log('Added to cart', item.name);
+    }
+
+    function renderCartSide(){
+      if(App.role!=='customer'){
+        side.innerHTML = `<div><strong>Switch to Customer to use the cart</strong></div>`; return;
+      }
+      const cart = App.cart; const r = App.restaurants.find(rr=>rr.id===cart.restaurantId);
+      let html = '<div style="display:flex;justify-content:space-between;align-items:center"><strong>Cart</strong><div class="muted small">'+(r? r.name : 'No restaurant')+'</div></div>';
+      html += '<div class="cart-items" id="cartItems">';
+      let subtotal = 0;
+      if(cart.items){ for(const it of Object.values(cart.items)){ subtotal += it.price*it.qty; html+=`<div class="cart-row"><div>${it.name} <span class="muted small">x${it.qty}</span></div><div>${money(it.price*it.qty)}</div></div>` }}
+      html += '</div>';
+      html += `<div style="display:flex;justify-content:space-between;margin-top:8px"><div class="muted">Subtotal</div><div><strong>${money(subtotal)}</strong></div></div>`;
+      html += `<div style="margin-top:10px;display:flex;gap:8px"><button class="btn ghost" id="clearCart">Clear</button><button class="btn primary" id="checkoutBtn" style><h1 style="color:#FFFFFF;margin:0;font-size:16px">Checkout</h1></button></div>`;
+      side.innerHTML = html;
+      document.getElementById('clearCart').addEventListener('click', ()=>{ App.cart={}; renderCartSide(); });
+      document.getElementById('checkoutBtn').addEventListener('click', ()=> checkout());
+    }
+
+    /* ------------- Checkout: POST to backend ------------- */
+    async function checkout(){
+      if(!App.cart.items) return alert('Cart is empty');
+      const name = prompt('Enter your name for the order:','Customer'); if(!name) return;
+      const address = prompt('Delivery address','MG Road, Bangalore'); if(!address) return;
+      // construct items as required by backend: {menu_item_id, qty}
+      const items = Object.values(App.cart.items).map(i=>({ menu_item_id: i.id, qty: i.qty }));
+      try{
+        const body = {
+          customer: { name: name, address: address },
+          restaurant_id: App.cart.restaurantId,
+          delivery_address: address,
+          items
+        };
+        const data = await apiPost('/api/orders', body);
+        // success: show server order_uid
+        App.cart = {};
+        renderCartSide();
+        alert('Order placed — order id: ' + (data.order_uid || data.id || 'unknown'));
+        // optionally refresh dashboards
+        render();
+      }catch(err){
+        console.error('Checkout error', err);
+        alert('Failed to place order: ' + err.message);
+      }
+    }
+
+    /* ------------- RESTAURANT DASHBOARD ------------- */
+    async function renderRestaurantDashboard(){
+      // show a basic restaurant selector so the restaurant user can choose which restaurant to view
+      const restaurants = App.restaurants || [];
+      main.innerHTML = `<h2>Restaurant Dashboard</h2>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
+          <div class="muted small">Select restaurant:</div>
+          <select id="restaurantSelect">${restaurants.map(r=>`<option value="${r.id}">${r.name}</option>`).join('')}</select>
+          <button class="btn" id="refreshR">Refresh</button>
+        </div>
+        <div class="dash-grid">
+          <div>
+            <div class="card"><strong>New Orders</strong><div id="newOrders" style="margin-top:8px; background:rgba(224, 0, 0, 0.05);"></div></div>
+            <div class="card" style="margin-top:12px; background:rgba(83, 234, 153, 0.05);"><strong>Live Orders</strong><div id="liveOrders" style="margin-top:8px"></div></div>
+          </div>
+          <div>
+            <div class="card"><strong>Menu Management</strong><div id="menuMgmt"></div></div>
+            <div class="card" style="margin-top:12px"><strong>Sales Overview</strong><div id="salesStats"></div></div>
+          </div>
+        </div>`;
+
+      const selectEl = document.getElementById('restaurantSelect');
+      const refreshBtn = document.getElementById('refreshR');
+      async function loadOrdersForSelected(){
+        const restaurantId = selectEl.value;
+        try{
+          const orders = await apiGet('/api/orders?restaurant_id=' + encodeURIComponent(restaurantId));
+          renderOrders(orders, restaurantId);
+        }catch(err){
+          console.error('Failed to load orders for restaurant', err);
+          alert('Failed to load orders: ' + err.message);
+        }
+      }
+      selectEl.addEventListener('change', loadOrdersForSelected);
+      refreshBtn.addEventListener('click', loadOrdersForSelected);
+      // initial load
+      loadOrdersForSelected();
+
+      // Menu management UI (client only; editing would require server changes)
+      const menuMgmt = document.getElementById('menuMgmt'); menuMgmt.innerHTML='';
+      const r = App.restaurants.find(rr=>rr.id==selectEl.value) || App.restaurants[0];
+      if(r){
+        // fetch full menu for this restaurant so we can show items (call API /api/restaurants/:id)
+        try{
+          const full = await apiGet('/api/restaurants/' + r.id);
+          const categories = full.categories || {};
+          for(const [cat, items] of Object.entries(categories)){
+            const list = document.createElement('div'); list.className='muted small'; list.innerHTML = `<em>${cat}</em>`;
+            items.forEach(it=>{
+              const itdiv = document.createElement('div'); itdiv.style.display='flex'; itdiv.style.gap='8px'; itdiv.style.marginTop='6px';
+              itdiv.innerHTML = `<div style="flex:1">${it.name} — ${money(it.price)}</div><div><button class="btn" data-r="${r.id}" data-id="${it.id}">Toggle</button></div>`;
+              // NOTE: Toggle currently client-side only. To actually change availability you'd need an API route.
+              itdiv.querySelector('button').addEventListener('click', ()=>{ alert('Toggle availability would require a backend endpoint.'); });
+              list.appendChild(itdiv);
+            });
+            menuMgmt.appendChild(list);
+          }
+        }catch(e){
+          menuMgmt.innerHTML = '<div class="muted">Failed to load menu.</div>';
+        }
+      }else{
+        menuMgmt.innerHTML = '<div class="muted">No restaurants available</div>';
+      }
+    }
+
+    function renderOrders(orders, restaurantId){
+      const newOrdersEl = document.getElementById('newOrders'); const liveOrdersEl = document.getElementById('liveOrders');
+      newOrdersEl.innerHTML = ''; liveOrdersEl.innerHTML = '';
+      // orders format from backend: each order has id, order_uid, customer_id, restaurant_id, delivery_agent_id, delivery_address, subtotal, status, created_at, updated_at
+      // also server provides order_items in separate table; our backend endpoint returned items when requested in GET /api/orders?restaurant_id=... per earlier server.js
+      orders.forEach(o=>{
+        // attach items if not present attempt: some endpoints may not include items, fail gracefully
+        const items = o.items || o.order_items || [];
+        const clientOrder = {
+          id: o.id,
+          order_uid: o.order_uid,
+          customer: (o.customer_name || o.customer) || 'Customer',
+          address: o.delivery_address || o.address || '',
+          items: items.map(it => ({ name: it.name, qty: it.qty, price: it.price })),
+          subtotal: Number(o.subtotal || 0),
+          status: o.status || 'new',
+          createdAt: o.created_at || o.createdAt || new Date().toISOString()
+        };
+        const el = orderCardForRestaurant(clientOrder);
+        if(clientOrder.status === 'new') newOrdersEl.appendChild(el); else liveOrdersEl.appendChild(el);
+      });
+
+      function orderCardForRestaurant(o){
+        const el = document.createElement('div'); el.className='order';
+        el.innerHTML = `<div style="display:flex;justify-content:space-between"><h4>${o.order_uid || o.id}</h4><div class="muted small">${new Date(o.createdAt).toLocaleString()}</div></div>
+          <div class="muted">${o.customer} · ${o.address}</div>
+          <div>${o.items.map(it=>`${it.name} x${it.qty}`).join(', ')}</div>
+          <div style="display:flex;gap:8px;align-items:center"> <div class="muted">Total: ${money(o.subtotal)}</div><div style="flex:1"></div>
+          <div id="status-${o.order_uid || o.id}"></div></div>`;
+        const statusBox = el.querySelector('#status-'+(o.order_uid||o.id));
+        renderOrderControlsForRestaurant(o, statusBox);
+        return el;
+      }
+
+      function renderOrderControlsForRestaurant(o, container){
+        container.innerHTML='';
+        const st = document.createElement('div');
+        st.className = 'status ' + (o.status==='new'? 'new' : (o.status==='preparing'? 'prep' : (o.status==='out'?'out':'')));
+        st.textContent = o.status.toUpperCase(); container.appendChild(st);
+        if(o.status==='new'){
+          const acc = document.createElement('button'); acc.className='btn'; acc.textContent='Accept'; acc.addEventListener('click', ()=> changeStatusAPI(o, 'preparing'));
+          const rej = document.createElement('button'); rej.className='btn ghost'; rej.textContent='Reject'; rej.addEventListener('click', ()=> changeStatusAPI(o, 'rejected'));
+          container.appendChild(acc); container.appendChild(rej);
+        } else if(o.status==='preparing'){
+          const out = document.createElement('button'); out.className='btn primary'; out.textContent='Mark Out for Delivery'; out.addEventListener('click', ()=> changeStatusAPI(o, 'out'));
+          container.appendChild(out);
+        }
+      }
+
+      async function changeStatusAPI(order, newStatus){
+        try{
+          await apiPut('/api/orders/' + encodeURIComponent(order.id) + '/status', { status: newStatus });
+          // refresh lists
+          // re-render by re-calling renderRestaurantDashboard
+          render();
+        }catch(err){
+          console.error('Failed to update order status', err);
+          alert('Failed to update status: ' + err.message);
+        }
+      }
+    }
+
+    /* ------------- DRIVER APP ------------- */
+    async function renderDriverApp(){
+      main.innerHTML = `<h2>Driver App </h2>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
+          <div class="muted small">Choose driver:</div>
+          <select id="driverSelect">${(App.drivers||[]).map(d=>`<option value="${d.id}">${d.name}</option>`).join('')}</select>
+          <button class="btn" id="refreshD">Refresh</button>
+        </div>
+        <div class="card">
+          <strong>New Delivery Requests</strong>
+          <div id="requestList" style="margin-top:8px"></div>
+        </div>
+        <div class="card" style="margin-top:12px">
+          <strong>My Assignments</strong>
+          <div id="myDeliveries" style="margin-top:8px"></div>
+        </div>`;
+
+      const refreshBtn = document.getElementById('refreshD');
+      refreshBtn.addEventListener('click', loadDriverLists);
+      await loadDriverLists();
+
+      async function loadDriverLists(){
+        try{
+          const orders = await apiGet('/api/orders');
+          // orders include all orders; filter for statuses
+          const requests = orders.filter(o => o.status === 'out'); // ready to be taken
+          const assigned = orders.filter(o => o.status === 'assigned');
+          renderRequests(requests);
+          renderAssigned(assigned);
+        }catch(err){
+          console.error('Failed to load orders for driver', err);
+          alert('Failed to load orders: ' + err.message);
+        }
+      }
+
+      function renderRequests(list){
+        const requestList = document.getElementById('requestList'); requestList.innerHTML = '';
+        list.forEach(o=>{
+          const items = o.items || [];
+          const el = document.createElement('div'); el.className='order';
+          el.innerHTML = `<div style="display:flex;justify-content:space-between"><div><strong>${o.order_uid || o.id}</strong><div class="muted small">${o.customer_name || ''} · ${o.delivery_address || o.address || ''}</div></div><div><div>${money(o.subtotal)}</div><div class="muted small">Order Value</div></div></div><div style="display:flex;gap:8px;margin-top:8px"><button class="btn primary">Accept</button><button class="btn ghost">Skip</button></div>`;
+          el.querySelector('.btn.primary').addEventListener('click', ()=> acceptDelivery(o.id));
+          requestList.appendChild(el);
+        });
+      }
+
+      function renderAssigned(list){
+        const myDeliveries = document.getElementById('myDeliveries'); myDeliveries.innerHTML = '';
+        // optionally show only assignments for currently selected driver — but we'll show all assigned here
+        list.forEach(o=>{
+          const el = document.createElement('div'); el.className='order';
+          el.innerHTML = `<div style="display:flex;justify-content:space-between"><div><strong>${o.order_uid || o.id}</strong><div class="muted small">${o.customer_name || ''} · ${o.delivery_address || o.address || ''}</div></div><div class="muted">${money(o.subtotal)}</div></div>
+            <div style="display:flex;gap:8px;margin-top:8px"><button class="btn" data-act="picked">Picked Up</button><button class="btn primary" data-act="delivered">Delivered</button>
+            <a class="btn ghost" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(o.delivery_address || o.address || '')}">Navigate</a></div>`;
+          el.querySelector('[data-act="picked"]').addEventListener('click', ()=> updateDriverStatus(o.id,'picked'));
+          el.querySelector('[data-act="delivered"]').addEventListener('click', ()=> updateDriverStatus(o.id,'delivered'));
+          myDeliveries.appendChild(el);
+        });
+      }
+
+      async function acceptDelivery(orderId){
+        // assign selected driver to order
+        const driverSelect = document.getElementById('driverSelect');
+        const driverId = driverSelect ? driverSelect.value : (App.drivers[0] && App.drivers[0].id);
+        if(!driverId) return alert('No driver selected or available');
+        try{
+          await apiPut('/api/orders/' + encodeURIComponent(orderId) + '/assign', { driver_id: driverId });
+          // After assigning, status will be set to assigned by backend
+          await render(); // refresh UI
+          alert('Assigned to you!');
+        }catch(err){
+          console.error('Failed to accept delivery', err);
+          alert('Failed to accept delivery: ' + err.message);
+        }
+      }
+
+      async function updateDriverStatus(orderId, status){
+        try{
+          await apiPut('/api/orders/' + encodeURIComponent(orderId) + '/status', { status });
+          await render(); // refresh UI
+        }catch(err){
+          console.error('Failed to update delivery status', err);
+          alert('Failed to update: ' + err.message);
+        }
+      }
+    }
+
+    /* ------------- ROLE SWITCHING ------------- */
+    document.querySelectorAll('.role').forEach(b=> b.addEventListener('click', ()=>{
+      App.role = b.dataset.role;
+      // clear side for non-customer
+      if(App.role !== 'customer') side.innerHTML = '';
+      render();
+    }));
+
+    // ensure local orders key exists for any fallback
+    if(!localStorage.getItem(STORAGE.ordersKey)) writeOrdersLocal([]);
+
+    // expose debug object
+    window._demo = { App, render, apiGet, apiPost, apiPut };
+  </script>
+</body>
+</html>
